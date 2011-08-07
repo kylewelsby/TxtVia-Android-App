@@ -35,6 +35,19 @@ public class DeviceRegistrar {
 
 	private static final String TAG = "DeviceRegistrar";
 
+  public static void getAuthToken(){
+    try{
+      HttpClient httpclient = new DefaultHttpClient();
+      HttpResponse response = httpclient.execute(
+        new HttpGet(
+          Setup.PROD_URL + "/users/auth/device"
+        )
+      );
+      response.setHeader("device.auth['email']","test@example.com");
+      
+    }
+  }
+  
 	public static void registerOrUnregister(final Context context,
 			final String deviceRegistrationId, final boolean register) {
 		final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
