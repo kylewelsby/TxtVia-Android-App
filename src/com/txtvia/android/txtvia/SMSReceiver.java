@@ -47,6 +47,7 @@ public class SMSReceiver extends BroadcastReceiver
                 SharedPreferences preSettings = Util.getSharedPreferences(context);
 
                 String deviceRegistrationId = preSettings.getString(Util.DEVICE_REGISTRATION_ID, "");
+                String authenticationToken = Util.getAuthToken(context);
                 
                 try {
 					HttpClient httpclient = new DefaultHttpClient();
@@ -54,7 +55,8 @@ public class SMSReceiver extends BroadcastReceiver
 							Setup.PROD_URL + "/create_message?recipient="
 									+ sender + "&body="
 									+ message + "&device_id="
-									+ deviceRegistrationId + "&from_phone=true"));
+									+ deviceRegistrationId + "&from_phone=true"+ "&authentication_token="
+									+ authenticationToken));
 					StatusLine statusLine = response.getStatusLine();
 					if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
 						ByteArrayOutputStream out = new ByteArrayOutputStream();

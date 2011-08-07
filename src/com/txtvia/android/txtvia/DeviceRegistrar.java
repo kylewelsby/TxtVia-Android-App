@@ -10,10 +10,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.Request;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
-
 import com.wdowka.apps.spotminder.client.MyRequestFactory;
 import com.wdowka.apps.spotminder.client.MyRequestFactory.RegistrationInfoRequest;
 import com.wdowka.apps.spotminder.shared.RegistrationInfoProxy;
@@ -41,8 +37,7 @@ public class DeviceRegistrar {
 
 		SharedPreferences prefs = Util.getSharedPreferences(context);
 		String accountName = prefs.getString(Util.ACCOUNT_NAME, null);
-
-		RegistrationInfoRequest request = getRequest(context);
+		String authenticationToken = Util.getAuthToken(context);
 
 		try {
 			Log.i(TAG, "got registration number:" + deviceRegistrationId
@@ -51,7 +46,8 @@ public class DeviceRegistrar {
 			HttpResponse response = httpclient.execute(new HttpGet(
 					Setup.PROD_URL + "/register_device?account_name="
 							+ accountName + "&registration_id="
-							+ deviceRegistrationId));
+							+ deviceRegistrationId + "&authentication_token="
+							+ authenticationToken));
 			StatusLine statusLine = response.getStatusLine();
 			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
