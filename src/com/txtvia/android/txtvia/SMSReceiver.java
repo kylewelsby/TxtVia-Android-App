@@ -64,11 +64,7 @@ public class SMSReceiver extends BroadcastReceiver
 						out.close();
 						String responseString = out.toString();
 						Log.i(TAG, "got response from server:" + responseString);
-						boolean success = true;
-
-
 					} else {
-						// Closes the connection.
 						response.getEntity().getContent().close();
 						throw new IOException(statusLine.getReasonPhrase());
 					}
