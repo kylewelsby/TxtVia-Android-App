@@ -49,7 +49,7 @@ public class DeviceRegistrar {
 					+ "  for account:" + accountName);
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpResponse response = httpclient.execute(new HttpGet(
-					"http://10.59.2.51:1234/register_device?account_name="
+					Setup.PROD_URL + "/register_device?account_name="
 							+ accountName + "&registration_id="
 							+ deviceRegistrationId));
 			StatusLine statusLine = response.getStatusLine();
