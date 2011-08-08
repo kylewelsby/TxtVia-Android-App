@@ -245,26 +245,16 @@ public class Util {
 			try {
 				Log.i(TAG, "requestion auth token... ");
 				HttpClient httpclient = new DefaultHttpClient();
-				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device");
+				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device.json");
 				List <NameValuePair> postBody = new ArrayList <NameValuePair>();
-				postBody.add(new BasicNameValuePair("email",ACCOUNT_NAME));
+				postBody.add(new BasicNameValuePair("email",settings.getString(ACCOUNT_NAME, null)));
 				postBody.add(new BasicNameValuePair("api_key", Setup.API_KEY));
 				httppost.setEntity(new UrlEncodedFormEntity(postBody, HTTP.UTF_8));
-				httppost.setHeader("Accept", "application/json");
-            	httppost.setHeader("Content-type", "application/json");
+//				httppost.setHeader("Accept", "application/json");
+//            	httppost.setHeader("Content-type", "application/json");
             	HttpResponse response = httpclient.execute(httppost);
             	
-//				httppost.getEntity()
-				
-//				HttpClient authenticate = new DefaultHttpClient();
-//				HttpGet getMethod = new HttpGet(Setup.PROD_URL + "/users/auth/device.json");
-//				getMethod.setEntity(new UrlEncodedFormEntity(messageValues, HTTP.UTF_8));
-//				getMethod.setHeader("Accept", "application/json");
-//
-//				getMethod.setHeader("Content-type", "application/json");
-//				getMethod.addHeader("device.email", settings.getString(ACCOUNT_NAME, null));
-//				getMethod.addHeader("device.identifier", settings.getString(DEVICE_REGISTRATION_ID, null));
-//				HttpResponse response = authenticate.execute(getMethod);
+
 				
 				StatusLine statusLine = response.getStatusLine();
 				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
@@ -281,9 +271,12 @@ public class Util {
 						jObject = new JSONObject(responseString);
 						SharedPreferences.Editor editor = settings.edit();
 						
-//						editor.putString(AUTH_TOKEN, (jObject.getJSONObject("authentication_token")));
-						editor.putString(AUTH_TOKEN, responseString);
-						return AUTH_TOKEN;
+//						String token = jObject.getString("authentication_token");
+						token = "7QVrpmIIa71Iy7qwlQrD";
+						Log.v(TAG,"ggot token"+token);
+						editor.putString(AUTH_TOKEN, token);
+//						editor.putString(AUTH_TOKEN, responseString);
+						return token;
 						
 					} 
 
@@ -295,8 +288,8 @@ public class Util {
 			} catch (Exception e) {
 				Log.w(TAG, "shit happend when sending registration ID to server", e);
 			}
-		}   	
-		return "asdf";
+		}
+		return token;
     }
 
 	private static Object JSONObject(String responseString) {

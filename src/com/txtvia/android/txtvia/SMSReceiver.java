@@ -64,7 +64,7 @@ public class SMSReceiver extends BroadcastReceiver
                 	messageValues.add(new BasicNameValuePair("sender",sender));
                 	messageValues.add(new BasicNameValuePair("body",message));
                 	messageValues.add(new BasicNameValuePair("device_id",deviceId));
-                	messageValues.add(new BasicNameValuePair("authentication",authenticationToken));
+                	messageValues.add(new BasicNameValuePair("auth_token",authenticationToken));
                 	messageValues.add(new BasicNameValuePair("api_key", Setup.API_KEY));
                 	httppost.setEntity(new UrlEncodedFormEntity(messageValues, HTTP.UTF_8));
                 	httppost.setHeader("Accept", "application/json");

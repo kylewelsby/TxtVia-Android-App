@@ -11,9 +11,9 @@ public class Setup {
     /**
      * The URL of the production service.
      */
-//    public static final String PROD_URL = "http://10.59.2.51:8080";
+    public static final String PROD_URL = "http://192.168.0.3:8080";
 //    public static final String PROD_URL = "http://10.59.2.2:8080";
-    public static final String PROD_URL = "http://staging.txtvia.com/";
+//    public static final String PROD_URL = "http://staging.txtvia.com/";
 //    public statc final String PROD_URL = "http://txtvia.com";
 
     /**
