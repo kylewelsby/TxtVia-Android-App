@@ -88,7 +88,7 @@ public class DeviceRegistrar {
 				}
 			} catch (Exception e) {
 				Log.w(TAG,
-						"shit happend when sending registration ID to server",
+						"Something went wrong while sending registration ID to server",
 						e);
 			}
 		} else {

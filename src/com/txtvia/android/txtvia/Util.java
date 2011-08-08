@@ -12,16 +12,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+//import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONObject;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -38,17 +46,21 @@ import android.util.Log;
  */
 public class Util {
 
+		
+	private static JSONObject jObject;
     /**
      * Tag for logging.
      */
     private static final String TAG = "Util";
 
     // Shared constants
+    
+//    private JSONObject jObject;
 
     /**
      * Key for account name in shared preferences.
      */
-    public static final String ACCOUNT_NAME = "accountName";
+	public static final String ACCOUNT_NAME = "accountName";
     
     public static final String AUTH_TOKEN = "authentication_token";
 
@@ -61,6 +73,8 @@ public class Util {
      * Key for device registration id in shared preferences.
      */
     public static final String DEVICE_REGISTRATION_ID = "deviceRegistrationID";
+    
+    public static final String DEVICE_ID = "device_id";
 
     /*
      * URL suffix for the RequestFactory servlet.
@@ -83,6 +97,7 @@ public class Util {
      * Cache containing the base URL for a given context.
      */
     private static final Map<Context, String> URL_MAP = new HashMap<Context, String>();
+    
 
     /**
      * Display a notification containing the given string.
@@ -230,10 +245,26 @@ public class Util {
 			try {
 				Log.i(TAG, "requestion auth token... ");
 				HttpClient httpclient = new DefaultHttpClient();
-				HttpGet getMethod = new HttpGet(Setup.PROD_URL + "/users/auth/device.json");
-				getMethod.addHeader("device.email", settings.getString(ACCOUNT_NAME, null));
-//				getMethod.addHeader("device.identifier", settings.getString(DEVICE_REGISTRATION_ID, null))
-				HttpResponse response = httpclient.execute(getMethod);
+				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device");
+				List <NameValuePair> postBody = new ArrayList <NameValuePair>();
+				postBody.add(new BasicNameValuePair("email",ACCOUNT_NAME));
+				postBody.add(new BasicNameValuePair("api_key", Setup.API_KEY));
+				httppost.setEntity(new UrlEncodedFormEntity(postBody, HTTP.UTF_8));
+				httppost.setHeader("Accept", "application/json");
+            	httppost.setHeader("Content-type", "application/json");
+            	HttpResponse response = httpclient.execute(httppost);
+            	
+//				httppost.getEntity()
+				
+//				HttpClient authenticate = new DefaultHttpClient();
+//				HttpGet getMethod = new HttpGet(Setup.PROD_URL + "/users/auth/device.json");
+//				getMethod.setEntity(new UrlEncodedFormEntity(messageValues, HTTP.UTF_8));
+//				getMethod.setHeader("Accept", "application/json");
+//
+//				getMethod.setHeader("Content-type", "application/json");
+//				getMethod.addHeader("device.email", settings.getString(ACCOUNT_NAME, null));
+//				getMethod.addHeader("device.identifier", settings.getString(DEVICE_REGISTRATION_ID, null));
+//				HttpResponse response = authenticate.execute(getMethod);
 				
 				StatusLine statusLine = response.getStatusLine();
 				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
@@ -247,11 +278,12 @@ public class Util {
 					boolean success = true;
 					if (success) {
 						
+						jObject = new JSONObject(responseString);
 						SharedPreferences.Editor editor = settings.edit();
-
-						editor.putString(AUTH_TOKEN, "7QVrpmlla71ly7qwlQrD");
 						
-						return "7QVrpmlla71ly7qwlQrD";
+//						editor.putString(AUTH_TOKEN, (jObject.getJSONObject("authentication_token")));
+						editor.putString(AUTH_TOKEN, responseString);
+						return AUTH_TOKEN;
 						
 					} 
 
@@ -266,4 +298,9 @@ public class Util {
 		}   	
 		return "asdf";
     }
+
+	private static Object JSONObject(String responseString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
