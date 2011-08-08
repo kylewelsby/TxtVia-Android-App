@@ -231,8 +231,8 @@ public class Util {
 				Log.i(TAG, "requestion auth token... ");
 				HttpClient httpclient = new DefaultHttpClient();
 				HttpGet getMethod = new HttpGet(Setup.PROD_URL + "/users/auth/device.json");
-				getMethod.addHeader("devise.email", "txtviadotcom@gmail.com");
-				
+				getMethod.addHeader("device.email", settings.getString(ACCOUNT_NAME, null));
+//				getMethod.addHeader("device.identifier", settings.getString(DEVICE_REGISTRATION_ID, null))
 				HttpResponse response = httpclient.execute(getMethod);
 				
 				StatusLine statusLine = response.getStatusLine();
@@ -249,9 +249,9 @@ public class Util {
 						
 						SharedPreferences.Editor editor = settings.edit();
 
-//						editor.putString(AUTH_TOKEN, "asdf")
+						editor.putString(AUTH_TOKEN, "7QVrpmlla71ly7qwlQrD");
 						
-						return "token";
+						return "7QVrpmlla71ly7qwlQrD";
 						
 					} 
 

@@ -247,6 +247,7 @@ public class AccountsActivity extends Activity {
         final SharedPreferences prefs = Util.getSharedPreferences(mContext);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(Util.ACCOUNT_NAME, accountName);
+        Log.i(TAG, "-----------account name: " + accountName);
         editor.putString(Util.AUTH_COOKIE, null);
         editor.commit();
 

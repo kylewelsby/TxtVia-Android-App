@@ -68,6 +68,8 @@ public class TxtViaActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        SharedPreferences settings = Util.getSharedPreferences(this);
+        settings.edit().remove(Util.AUTH_TOKEN);
         
         registerReceiver(mUpdateUIReceiver, new IntentFilter(Util.UPDATE_UI_INTENT));
     }

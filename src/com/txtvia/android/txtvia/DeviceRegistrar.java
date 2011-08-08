@@ -31,19 +31,6 @@ public class DeviceRegistrar {
 
 	private static final String TAG = "DeviceRegistrar";
 
-  public static void getAuthToken(){
-    try{
-      HttpClient httpclient = new DefaultHttpClient();
-      HttpResponse response = httpclient.execute(
-        new HttpGet(
-          Setup.PROD_URL + "/users/auth/device"
-        )
-      );
-      response.setHeader("device.auth['email']","test@example.com");
-      
-    }
-  }
-  
 	public static void registerOrUnregister(final Context context,
 			final String deviceRegistrationId, final boolean register) {
 		final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
@@ -51,50 +38,61 @@ public class DeviceRegistrar {
 		SharedPreferences prefs = Util.getSharedPreferences(context);
 		String accountName = prefs.getString(Util.ACCOUNT_NAME, null);
 		String authenticationToken = Util.getAuthToken(context);
+		if (register) {
 
-		try {
-			Log.i(TAG, "got registration number:" + deviceRegistrationId
-					+ "  for account:" + accountName);
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpResponse response = httpclient.execute(new HttpGet(
-					Setup.PROD_URL + "/register_device?account_name="
-							+ accountName + "&registration_id="
-							+ deviceRegistrationId + "&authentication_token="
-							+ authenticationToken));
-			StatusLine statusLine = response.getStatusLine();
-			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				response.getEntity().writeTo(out);
-				out.close();
-				String responseString = out.toString();
-				Log.i(TAG, "got response from server:" + responseString);
-				boolean success = true;
-				if (success) {
-					SharedPreferences settings = Util
-							.getSharedPreferences(context);
-					SharedPreferences.Editor editor = settings.edit();
+			try {
+				Log.i(TAG, "got registration number:" + deviceRegistrationId
+						+ "  for account:" + accountName);
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpResponse response = httpclient.execute(new HttpGet(
+						Setup.PROD_URL + "/register_device?account_name="
+								+ accountName + "&registration_id="
+								+ deviceRegistrationId
+								+ "&authentication_token="
+								+ authenticationToken));
+				StatusLine statusLine = response.getStatusLine();
+				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					response.getEntity().writeTo(out);
+					out.close();
+					String responseString = out.toString();
+					Log.i(TAG, "got response from server:" + responseString);
+					boolean success = true;
+					if (success) {
+						SharedPreferences settings = Util
+								.getSharedPreferences(context);
+						SharedPreferences.Editor editor = settings.edit();
 
-					if (register) {
-						editor.putString(Util.DEVICE_REGISTRATION_ID,
-								deviceRegistrationId);
+						if (register) {
+							editor.putString(Util.DEVICE_REGISTRATION_ID,
+									deviceRegistrationId);
+							
+						} else {
+							editor.remove(Util.DEVICE_REGISTRATION_ID);
+							editor.remove(Util.AUTH_TOKEN);
+						}
+						editor.commit();
+						updateUIIntent.putExtra(STATUS_EXTRA,
+								register ? REGISTERED_STATUS
+										: UNREGISTERED_STATUS);
+						context.sendBroadcast(updateUIIntent);
 					} else {
-						editor.remove(Util.DEVICE_REGISTRATION_ID);
+						updateUIIntent.putExtra(STATUS_EXTRA, ERROR_STATUS);
+						context.sendBroadcast(updateUIIntent);
 					}
-					editor.commit();
-					updateUIIntent.putExtra(STATUS_EXTRA, register ? REGISTERED_STATUS : UNREGISTERED_STATUS);
-					context.sendBroadcast(updateUIIntent);
-				} else {
-					updateUIIntent.putExtra(STATUS_EXTRA, ERROR_STATUS);
-					context.sendBroadcast(updateUIIntent);
-				}
 
-			} else {
-				// Closes the connection.
-				response.getEntity().getContent().close();
-				throw new IOException(statusLine.getReasonPhrase());
+				} else {
+					// Closes the connection.
+					response.getEntity().getContent().close();
+					throw new IOException(statusLine.getReasonPhrase());
+				}
+			} catch (Exception e) {
+				Log.w(TAG,
+						"shit happend when sending registration ID to server",
+						e);
 			}
-		} catch (Exception e) {
-			Log.w(TAG, "shit happend when sending registration ID to server", e);
+		} else {
+
 		}
 
 	}
