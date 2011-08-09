@@ -35,7 +35,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
+//import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -245,19 +245,21 @@ public class Util {
 			try {
 				Log.i(TAG, "requestion auth token... ");
 				HttpClient httpclient = new DefaultHttpClient();
-				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device.json");
+				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device");
 				List <NameValuePair> postBody = new ArrayList <NameValuePair>();
 				postBody.add(new BasicNameValuePair("email",settings.getString(ACCOUNT_NAME, null)));
 				postBody.add(new BasicNameValuePair("api_key", Setup.API_KEY));
 				httppost.setEntity(new UrlEncodedFormEntity(postBody, HTTP.UTF_8));
-//				httppost.setHeader("Accept", "application/json");
+				httppost.setHeader("Accept", "application/json");
 //            	httppost.setHeader("Content-type", "application/json");
             	HttpResponse response = httpclient.execute(httppost);
             	
 
 				
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+				Log.i(TAG, "request status: " + statusLine.getStatusCode());
+				
+				if (statusLine.getStatusCode() == 201 || statusLine.getStatusCode() == 200) {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					response.getEntity().writeTo(out);
 					out.close();
@@ -270,12 +272,12 @@ public class Util {
 						
 						jObject = new JSONObject(responseString);
 						SharedPreferences.Editor editor = settings.edit();
-						
-//						String token = jObject.getString("authentication_token");
-						token = "7QVrpmIIa71Iy7qwlQrD";
-						Log.v(TAG,"ggot token"+token);
-						editor.putString(AUTH_TOKEN, token);
-//						editor.putString(AUTH_TOKEN, responseString);
+						Log.i(TAG, "response : " + jObject);
+						JSONObject user = jObject.getJSONObject("user");
+						token = user.getString(Util.AUTH_TOKEN);
+						Log.i(TAG, "token : " + token);
+						Log.i(TAG,"got token"+token);
+						editor.putString(Util.AUTH_TOKEN, token);
 						return token;
 						
 					} 
@@ -286,7 +288,7 @@ public class Util {
 					throw new IOException(statusLine.getReasonPhrase());
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "shit happend when sending registration ID to server", e);
+				Log.w(TAG, "Could not authenticate user.", e);
 			}
 		}
 		return token;

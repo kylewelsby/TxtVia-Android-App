@@ -72,27 +72,20 @@ public class SMSReceiver extends BroadcastReceiver
                 	
                 	HttpResponse response = httpclient.execute(httppost);
                 	
-                	int statusCode = response.getStatusLine().getStatusCode();
-                    Log.i(TAG, "ErrorHandler post status code: " + statusCode);
+                	StatusLine statusLine = response.getStatusLine();
                 	
-//					HttpClient httpclient = new DefaultHttpClient();
-//					HttpResponse response = httpclient.execute(new HttpGet(
-//							Setup.PROD_URL + "/messages/create_message?recipient="
-//									+ sender + "&body="
-//									+ message + "&device_id="
-//									+ deviceRegistrationId + "&from_phone=true"+ "&authentication_token="
-//									+ authenticationToken));
-//					StatusLine statusLine = response.getStatusLine();
-//					if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-//						ByteArrayOutputStream out = new ByteArrayOutputStream();
-//						response.getEntity().writeTo(out);
-//						out.close();
-//						String responseString = out.toString();
-//						Log.i(TAG, "got response from server:" + responseString);
-//					} else {
-//						response.getEntity().getContent().close();
-//						throw new IOException(statusLine.getReasonPhrase());
-//					}
+                	int statusCode = statusLine.getStatusCode();
+                    Log.i(TAG, "ErrorHandler post status code: " + statusCode);
+                	if(statusCode == HttpStatus.SC_CREATED){
+                		ByteArrayOutputStream out = new ByteArrayOutputStream();
+						response.getEntity().writeTo(out);
+						out.close();
+						String responseString = out.toString();
+						Log.i(TAG, "got response from server:" + responseString);
+                	}else{
+                		response.getEntity().getContent().close();
+						throw new IOException(statusLine.getReasonPhrase());
+                	}
 				} catch (Exception e) {
 					Log.w(TAG, "we're not so good, heres shit:", e);
 				}

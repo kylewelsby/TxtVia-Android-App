@@ -40,7 +40,7 @@ public class DeviceRegistrar {
 	private static final String TAG = "DeviceRegistrar";
 
 	public static void registerOrUnregister(final Context context,
-			final String deviceRegistrationId, final boolean register) throws IllegalStateException, IOException {
+			final String deviceRegistrationId, final boolean register) {
 		final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
 
 		SharedPreferences prefs = Util.getSharedPreferences(context);
@@ -74,7 +74,7 @@ public class DeviceRegistrar {
 //								+ "&authentication_token="
 //								+ authenticationToken));
 				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+				if (statusLine.getStatusCode() == HttpStatus.SC_OK || statusLine.getStatusCode() == HttpStatus.SC_CREATED) {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 					response.getEntity().writeTo(out);
 					out.close();
@@ -110,9 +110,7 @@ public class DeviceRegistrar {
 					throw new IOException(statusLine.getReasonPhrase());
 				}
 			} catch (Exception e) {
-				Log.w(TAG,
-						"Something went wrong while sending registration ID to server",
-						e);
+				Log.w(TAG,"Something went wrong while sending registration ID to server",e);
 			}
 		} else {
 
