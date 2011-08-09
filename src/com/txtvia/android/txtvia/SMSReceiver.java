@@ -48,6 +48,7 @@ public class SMSReceiver extends BroadcastReceiver
         		String sender = messages[i].getOriginatingAddress();                     
                 
                 String message = messages[i].getMessageBody().toString();
+                String received_at = "" + messages[i].getTimestampMillis() +"";
                 Log.i(TAG, "********&&&&&&Received message:'" +message+"' from " + sender );
                 
                 //get reg id
@@ -63,12 +64,12 @@ public class SMSReceiver extends BroadcastReceiver
                 	List <NameValuePair> messageValues = new ArrayList <NameValuePair>();
                 	messageValues.add(new BasicNameValuePair("sender",sender));
                 	messageValues.add(new BasicNameValuePair("body",message));
+                	messageValues.add(new BasicNameValuePair("received_at",received_at));
                 	messageValues.add(new BasicNameValuePair("device_id",deviceId));
                 	messageValues.add(new BasicNameValuePair("auth_token",authenticationToken));
                 	messageValues.add(new BasicNameValuePair("api_key", Setup.API_KEY));
                 	httppost.setEntity(new UrlEncodedFormEntity(messageValues, HTTP.UTF_8));
                 	httppost.setHeader("Accept", "application/json");
-                	httppost.setHeader("Content-type", "application/json");
                 	
                 	HttpResponse response = httpclient.execute(httppost);
                 	
@@ -87,7 +88,7 @@ public class SMSReceiver extends BroadcastReceiver
 						throw new IOException(statusLine.getReasonPhrase());
                 	}
 				} catch (Exception e) {
-					Log.w(TAG, "we're not so good, heres shit:", e);
+					Log.w(TAG, "we're not so good:", e);
 				}
                 
                 
