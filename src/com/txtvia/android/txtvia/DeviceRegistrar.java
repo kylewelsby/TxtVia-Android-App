@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 //import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class DeviceRegistrar {
@@ -45,6 +46,8 @@ public class DeviceRegistrar {
 
 		SharedPreferences prefs = Util.getSharedPreferences(context);
 //		String accountName = prefs.getString(Util., null);
+		TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+
 		String authenticationToken = Util.getAuthToken(context);
 		if (register) {
 
@@ -56,6 +59,11 @@ public class DeviceRegistrar {
             	HttpPost httppost = new HttpPost(Setup.PROD_URL + "/devices.json");
             	List <NameValuePair> deviceValues = new ArrayList <NameValuePair>();
             	deviceValues.add(new BasicNameValuePair("registration_id",deviceRegistrationId));
+            	deviceValues.add(new BasicNameValuePair("unique_id",manager.getDeviceId()));
+            	deviceValues.add(new BasicNameValuePair("type","android"));
+            	deviceValues.add(new BasicNameValuePair("name",android.os.Build.MANUFACTURER +" "+ android.os.Build.MODEL));
+            	deviceValues.add(new BasicNameValuePair("carrier",manager.getNetworkOperatorName()));
+
             	deviceValues.add(new BasicNameValuePair("auth_token",authenticationToken));
             	deviceValues.add(new BasicNameValuePair("api_key", Setup.API_KEY));
             	httppost.setEntity(new UrlEncodedFormEntity(deviceValues, HTTP.UTF_8));

@@ -20,7 +20,7 @@ public class Setup {
      * The C2DM sender ID for the server. A C2DM registration with this name
      * must exist for the app to function correctly.
      */
-    public static final String SENDER_ID = "txtviadotcom@gmail.com";
+    public static final String SENDER_ID = "app@txtvia.com";
     
     public static final String API_KEY = "test";
 }
