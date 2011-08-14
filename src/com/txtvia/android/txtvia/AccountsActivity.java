@@ -17,19 +17,6 @@ package com.txtvia.android.txtvia;
 
 import com.google.android.c2dm.C2DMessaging;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +24,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -46,11 +31,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -69,7 +56,7 @@ public class AccountsActivity extends Activity {
     /**
      * Cookie name for authorization.
      */
-    private static final String AUTH_COOKIE_NAME = "SACSID";
+//    private static final String AUTH_COOKIE_NAME = "SACSID";
 
     /**
      * The selected position in the ListView of accounts.
@@ -92,17 +79,27 @@ public class AccountsActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        getWindow().setFormat(PixelFormat.RGBA_8888);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
         SharedPreferences prefs = Util.getSharedPreferences(mContext);
         String deviceRegistrationID = prefs.getString(Util.DEVICE_REGISTRATION_ID, null);
         if (deviceRegistrationID == null) {
+        	Log.i(TAG, "Device Unregistered");
             // Show the 'connect' screen if we are not connected
             setScreenContent(R.layout.connect);
         } else {
+        	Log.i(TAG, "Device Registered");
             // Show the 'disconnect' screen if we are connected
             setScreenContent(R.layout.disconnect);
         }
     }
+    
+//    public static void onRegistered(){
+//    	Log.i(TAG, "Device Registered, Closing Accounts");
+////    	Actibity = new Activity
+//    	activity.startActivity(intent);
+//    	this.finish();
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -126,7 +123,7 @@ public class AccountsActivity extends Activity {
             mPendingAuth = false;
             String regId = C2DMessaging.getRegistrationId(mContext);
             if (regId != null && !"".equals(regId)) {
-                DeviceRegistrar.registerOrUnregister(mContext, regId, true);
+                DeviceRegistrar.register(mContext, regId, true);
             } else {
                 C2DMessaging.register(mContext, Setup.SENDER_ID);
             }
@@ -140,6 +137,7 @@ public class AccountsActivity extends Activity {
      */
     private void setConnectScreenContent() {
         List<String> accounts = getGoogleAccounts();
+        final Intent updateUILoading = new Intent(Util.UPDATE_UI_LOADING);
         if (accounts.size() == 0) {
             // Show a dialog and invoke the "Add Account" activity if requested
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -170,6 +168,9 @@ public class AccountsActivity extends Activity {
                     mAccountSelectedPosition = listView.getCheckedItemPosition();
                     TextView account = (TextView) listView.getChildAt(mAccountSelectedPosition);
                     register((String) account.getText());
+                    
+//                    updateUILoading.putExtra("loading", 1);
+                    sendBroadcast(updateUILoading);
                     finish();
                 }
             });
@@ -277,6 +278,7 @@ public class AccountsActivity extends Activity {
 //                                prefs.edit().putString(Util.AUTH_COOKIE, authCookie).commit();
 
                                 C2DMessaging.register(mContext, Setup.SENDER_ID);
+                                finish();
 //                            } catch (AuthenticatorException e) {
 //                                Log.w(TAG, "Got AuthenticatorException " + e);
 //                                Log.w(TAG, Log.getStackTraceString(e));
@@ -302,39 +304,39 @@ public class AccountsActivity extends Activity {
      * method should only be used when running against a production appengine
      * backend (as opposed to a dev mode server).
      */
-    private String getAuthCookie(String authToken) {
-        try {
-            // Get SACSID cookie
-            DefaultHttpClient client = new DefaultHttpClient();
-            String continueURL = Setup.PROD_URL;
-            URI uri = new URI(Setup.PROD_URL + "/_ah/login?continue="
-                    + URLEncoder.encode(continueURL, "UTF-8") + "&auth=" + authToken);
-            HttpGet method = new HttpGet(uri);
-            final HttpParams getParams = new BasicHttpParams();
-            HttpClientParams.setRedirecting(getParams, false);
-            method.setParams(getParams);
-
-            HttpResponse res = client.execute(method);
-            Header[] headers = res.getHeaders("Set-Cookie");
-            if (res.getStatusLine().getStatusCode() != 302 || headers.length == 0) {
-                return null;
-            }
-
-            for (Cookie cookie : client.getCookieStore().getCookies()) {
-                if (AUTH_COOKIE_NAME.equals(cookie.getName())) {
-                    return AUTH_COOKIE_NAME + "=" + cookie.getValue();
-                }
-            }
-        } catch (IOException e) {
-            Log.w(TAG, "Got IOException " + e);
-            Log.w(TAG, Log.getStackTraceString(e));
-        } catch (URISyntaxException e) {
-            Log.w(TAG, "Got URISyntaxException " + e);
-            Log.w(TAG, Log.getStackTraceString(e));
-        }
-
-        return null;
-    }
+//    private String getAuthCookie(String authToken) {
+//        try {
+//            // Get SACSID cookie
+//            DefaultHttpClient client = new DefaultHttpClient();
+//            String continueURL = Setup.PROD_URL;
+//            URI uri = new URI(Setup.PROD_URL + "/_ah/login?continue="
+//                    + URLEncoder.encode(continueURL, "UTF-8") + "&auth=" + authToken);
+//            HttpGet method = new HttpGet(uri);
+//            final HttpParams getParams = new BasicHttpParams();
+//            HttpClientParams.setRedirecting(getParams, false);
+//            method.setParams(getParams);
+//
+//            HttpResponse res = client.execute(method);
+//            Header[] headers = res.getHeaders("Set-Cookie");
+//            if (res.getStatusLine().getStatusCode() != 302 || headers.length == 0) {
+//                return null;
+//            }
+//
+//            for (Cookie cookie : client.getCookieStore().getCookies()) {
+//                if (AUTH_COOKIE_NAME.equals(cookie.getName())) {
+//                    return AUTH_COOKIE_NAME + "=" + cookie.getValue();
+//                }
+//            }
+//        } catch (IOException e) {
+//            Log.w(TAG, "Got IOException " + e);
+//            Log.w(TAG, Log.getStackTraceString(e));
+//        } catch (URISyntaxException e) {
+//            Log.w(TAG, "Got URISyntaxException " + e);
+//            Log.w(TAG, Log.getStackTraceString(e));
+//        }
+//
+//        return null;
+//    }
 
     /**
      * Returns a list of registered Google account names. If no Google accounts
@@ -350,5 +352,10 @@ public class AccountsActivity extends Activity {
         }
 
         return result;
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, String data, Bundle extras){
+    	Log.i(TAG, "Device Registered, Closing Accounts");
+    	finish();
     }
 }

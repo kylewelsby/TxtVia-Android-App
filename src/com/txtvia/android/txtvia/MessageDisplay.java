@@ -8,6 +8,7 @@ import android.telephony.gsm.SmsManager;
 /**
  * Display a message as a notification, with an accompanying sound.
  */
+@SuppressWarnings("deprecation")
 public class MessageDisplay {
 
     private MessageDisplay() {

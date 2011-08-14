@@ -5,21 +5,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONObject;
 
-import com.wdowka.apps.spotminder.client.MyRequestFactory;
-import com.wdowka.apps.spotminder.client.MyRequestFactory.RegistrationInfoRequest;
+//import com.wdowka.apps.spotminder.client.MyRequestFactory;
+//import com.wdowka.apps.spotminder.client.MyRequestFactory.RegistrationInfoRequest;
 //import com.wdowka.apps.spotminder.shared.RegistrationInfoProxy;
 
 import android.content.Context;
@@ -40,7 +40,9 @@ public class DeviceRegistrar {
 
 	private static final String TAG = "DeviceRegistrar";
 
-	public static void registerOrUnregister(final Context context,
+	public static final int DEVICE_READY = 4;
+
+	public static void register(final Context context,
 			final String deviceRegistrationId, final boolean register) {
 		final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
 
@@ -48,7 +50,7 @@ public class DeviceRegistrar {
 //		String accountName = prefs.getString(Util., null);
 		TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
 
-		String authenticationToken = Util.getAuthToken(context);
+		String authenticationToken = prefs.getString(Util.AUTH_TOKEN, null);;
 		if (register) {
 
 			try {
@@ -56,7 +58,7 @@ public class DeviceRegistrar {
 						+ "  for account:" + authenticationToken);
 				
             	HttpClient httpclient = new DefaultHttpClient();
-            	HttpPost httppost = new HttpPost(Setup.PROD_URL + "/devices.json");
+            	HttpPost httppost = new HttpPost(Setup.PROD_URL + "/devices");
             	List <NameValuePair> deviceValues = new ArrayList <NameValuePair>();
             	deviceValues.add(new BasicNameValuePair("registration_id",deviceRegistrationId));
             	deviceValues.add(new BasicNameValuePair("unique_id",manager.getDeviceId()));
@@ -64,11 +66,12 @@ public class DeviceRegistrar {
             	deviceValues.add(new BasicNameValuePair("name",android.os.Build.MANUFACTURER +" "+ android.os.Build.MODEL));
             	deviceValues.add(new BasicNameValuePair("carrier",manager.getNetworkOperatorName()));
 
-            	deviceValues.add(new BasicNameValuePair("auth_token",authenticationToken));
+//            	deviceValues.add(new BasicNameValuePair("auth_token",authenticationToken));
+            	deviceValues.add(new BasicNameValuePair("email",prefs.getString(Util.ACCOUNT_NAME, null)));
             	deviceValues.add(new BasicNameValuePair("api_key", Setup.API_KEY));
+            	
             	httppost.setEntity(new UrlEncodedFormEntity(deviceValues, HTTP.UTF_8));
-//            	httppost.setEntity(new UrlEncodedFormEntity("reqistration_id="+deviceRegistrationId+"&auth_token="+Util.AUTH_TOKEN+"&api_key="+Setup.API_KEY, HTTP.UTF_8));
-//            	httppost.setHeader("Accept", "application/json");
+            	httppost.setHeader("Accept", "application/json");
 //            	httppost.setHeader("Content-type", "application/json");
             	
             	HttpResponse response = httpclient.execute(httppost);
@@ -88,35 +91,25 @@ public class DeviceRegistrar {
 					out.close();
 					String responseString = out.toString();
 					Log.i(TAG, "got response from server:" + responseString);
-					boolean success = true;
-					if (success) {
-						SharedPreferences settings = Util
-								.getSharedPreferences(context);
-						SharedPreferences.Editor editor = settings.edit();
 
-						if (register) {
-							editor.putString(Util.DEVICE_REGISTRATION_ID,
-									deviceRegistrationId);
-							
-						} else {
-							editor.remove(Util.DEVICE_REGISTRATION_ID);
-							editor.remove(Util.AUTH_TOKEN);
-						}
-						editor.commit();
-						updateUIIntent.putExtra(STATUS_EXTRA,
-								register ? REGISTERED_STATUS
-										: UNREGISTERED_STATUS);
-						context.sendBroadcast(updateUIIntent);
-					} else {
-						updateUIIntent.putExtra(STATUS_EXTRA, ERROR_STATUS);
-						context.sendBroadcast(updateUIIntent);
-					}
+					SharedPreferences.Editor editor = prefs.edit();
+					JSONObject jObject = new JSONObject(responseString);
+					JSONObject device = jObject.getJSONObject("device");
+					Integer device_id = device.getInt("id");
+					editor.putInt(Util.DEVICE_ID, device_id);
+					editor.commit();
+					
+					updateUIIntent.putExtra(STATUS_EXTRA, REGISTERED_STATUS);
+					context.sendBroadcast(updateUIIntent);
 
 				} else {
+					updateUIIntent.putExtra(STATUS_EXTRA, ERROR_STATUS);
 					// Closes the connection.
 					response.getEntity().getContent().close();
 					throw new IOException(statusLine.getReasonPhrase());
 				}
+				context.sendBroadcast(updateUIIntent);
+
 			} catch (Exception e) {
 				Log.w(TAG,"Something went wrong while sending registration ID to server",e);
 			}
@@ -125,12 +118,40 @@ public class DeviceRegistrar {
 		}
 
 	}
-
-	private static RegistrationInfoRequest getRequest(Context context) {
-		MyRequestFactory requestFactory = Util.getRequestFactory(context,
-				MyRequestFactory.class);
-		RegistrationInfoRequest request = requestFactory
-				.registrationInfoRequest();
-		return request;
+	
+	public static void unregister(final Context context){
+		Log.i(TAG,"Unregistering Device");
+		final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
+		SharedPreferences prefs = Util.getSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+		try{
+			int deviceID = prefs.getInt(Util.DEVICE_ID, 0);
+			String authenticationToken = prefs.getString(Util.AUTH_TOKEN, null);
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpDelete httpdelete = new HttpDelete(Setup.PROD_URL + "/devices/"+deviceID+"&?auth_token="+authenticationToken+"&api_key="+Setup.API_KEY);
+			httpdelete.setHeader("Accept", "application/json");
+			HttpResponse response = httpclient.execute(httpdelete);
+			if(response.getStatusLine().getStatusCode() != HttpStatus.SC_OK){
+				Log.w(TAG, "Unregistration error" + response.getStatusLine().getStatusCode());	
+			}
+		} catch (Exception e) {
+            Log.w(TAG, "Unregistration error " + e.getMessage());	
+		}finally{
+			Log.w(TAG, "Unregistration Removing elements");
+			editor.remove(Util.DEVICE_REGISTRATION_ID);
+			editor.remove(Util.AUTH_TOKEN);
+			editor.remove(Util.DEVICE_ID);
+			editor.commit();
+			updateUIIntent.putExtra(STATUS_EXTRA, UNREGISTERED_STATUS);
+		}
+		context.sendBroadcast(updateUIIntent);
 	}
+
+//	private static RegistrationInfoRequest getRequest(Context context) {
+//		MyRequestFactory requestFactory = Util.getRequestFactory(context,
+//				MyRequestFactory.class);
+//		RegistrationInfoRequest request = requestFactory
+//				.registrationInfoRequest();
+//		return request;
+//	}
 }

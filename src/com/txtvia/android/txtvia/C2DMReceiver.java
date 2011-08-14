@@ -8,11 +8,16 @@ import java.io.IOException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
 
 
 public class C2DMReceiver extends C2DMBaseReceiver {
 
-    public C2DMReceiver() {
+    private static final String TAG = "C2DMReceiver";
+    final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
+
+	public C2DMReceiver() {
         super(Setup.SENDER_ID);
     }
     
@@ -25,7 +30,7 @@ public class C2DMReceiver extends C2DMBaseReceiver {
      */
     @Override
     public void onRegistered(Context context, String registration) {
-        DeviceRegistrar.registerOrUnregister(context, registration, true);
+        DeviceRegistrar.register(context, registration, true);
     }
 
     /**
@@ -35,9 +40,10 @@ public class C2DMReceiver extends C2DMBaseReceiver {
      */
     @Override
     public void onUnregistered(Context context) {
-        SharedPreferences prefs = Util.getSharedPreferences(context);
-        String deviceRegistrationID = prefs.getString(Util.DEVICE_REGISTRATION_ID, null);
-        DeviceRegistrar.registerOrUnregister(context, deviceRegistrationID, false);
+    	Log.i(TAG, "Unregistered");
+//        SharedPreferences prefs = Util.getSharedPreferences(context);
+//        String deviceRegistrationID = prefs.getString(Util.DEVICE_REGISTRATION_ID, null);
+        DeviceRegistrar.unregister(context);
     }
 
     /**
@@ -50,6 +56,7 @@ public class C2DMReceiver extends C2DMBaseReceiver {
     @Override
     public void onError(Context context, String errorId) {
         context.sendBroadcast(new Intent(Util.UPDATE_UI_INTENT));
+        Log.e(TAG, "Error");
     }
 
     /**
@@ -60,7 +67,25 @@ public class C2DMReceiver extends C2DMBaseReceiver {
         /*
          * Replace this with your application-specific code
          */
-        MessageDisplay.displayMessage(context, intent);
+    	final Intent updateUIIntent = new Intent(Util.UPDATE_UI_INTENT);
+    	
+    	Bundle extras = intent.getExtras();
+    	if(extras.containsKey("message_body") && extras.containsKey("message_recipient")){
+    		Log.i(TAG, "message received");
+    		MessageDisplay.displayMessage(context, intent);
+    	}else if(extras.containsKey("auth_token")){
+    		Log.i(TAG, "auth_token received");
+			
+    		SharedPreferences prefs = Util.getSharedPreferences(context);
+    		String token = extras.getString("auth_token");
+    		SharedPreferences.Editor editor = prefs.edit();
+    		editor.putString(Util.AUTH_TOKEN, token);
+    		editor.commit();
+    		
+    		updateUIIntent.putExtra(DeviceRegistrar.STATUS_EXTRA, DeviceRegistrar.DEVICE_READY);
+    		context.sendBroadcast(updateUIIntent);
+    		Log.i(TAG, "auth_token received" + token);
+    	}
     }
     
 }

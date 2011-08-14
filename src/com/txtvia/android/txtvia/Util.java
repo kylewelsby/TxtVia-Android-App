@@ -5,31 +5,15 @@ import com.google.web.bindery.requestfactory.shared.RequestFactory;
 import com.google.web.bindery.requestfactory.vm.RequestFactorySource;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-//import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.json.JSONObject;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,7 +31,7 @@ import android.util.Log;
 public class Util {
 
 		
-	private static JSONObject jObject;
+//	private static JSONObject jObject;
     /**
      * Tag for logging.
      */
@@ -97,6 +81,7 @@ public class Util {
      * Cache containing the base URL for a given context.
      */
     private static final Map<Context, String> URL_MAP = new HashMap<Context, String>();
+	public static final String UPDATE_UI_LOADING = getPackageName() + ".UPDATE_UI_LOADING";
     
 
     /**
@@ -107,7 +92,7 @@ public class Util {
         long when = System.currentTimeMillis();
 
         Notification notification = new Notification(icon, message, when);
-        notification.setLatestEventInfo(context, "TxtVia monkey...", message,
+        notification.setLatestEventInfo(context, "TxtVia ", message,
                 PendingIntent.getActivity(context, 0, null, PendingIntent.FLAG_CANCEL_CURRENT));
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
@@ -236,66 +221,62 @@ public class Util {
     /**
      * Get auth token.
      */
-    public static String getAuthToken(Context context){
-    	SharedPreferences settings = Util.getSharedPreferences(context);
-		String token = settings.getString(Util.AUTH_TOKEN, null);
-		if(token != null){
-			return token;
-		} else {
-			try {
-				Log.i(TAG, "requestion auth token... ");
-				HttpClient httpclient = new DefaultHttpClient();
-				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device");
-				List <NameValuePair> postBody = new ArrayList <NameValuePair>();
-				postBody.add(new BasicNameValuePair("email",settings.getString(ACCOUNT_NAME, null)));
-				postBody.add(new BasicNameValuePair("api_key", Setup.API_KEY));
-				httppost.setEntity(new UrlEncodedFormEntity(postBody, HTTP.UTF_8));
-				httppost.setHeader("Accept", "application/json");
-//            	httppost.setHeader("Content-type", "application/json");
-            	HttpResponse response = httpclient.execute(httppost);
-            	
+//    public static String getAuthToken(Context context){
+//    	SharedPreferences settings = Util.getSharedPreferences(context);
+//		String token = settings.getString(Util.AUTH_TOKEN, null);
+//		if(token != null){
+//			return token;
+//		} else {
+//			try {
+//				Log.i(TAG, "requestion auth token... ");
+//				HttpClient httpclient = new DefaultHttpClient();
+//				HttpPost httppost = new HttpPost(Setup.PROD_URL + "/users/auth/device");
+//				List <NameValuePair> postBody = new ArrayList <NameValuePair>();
+//				postBody.add(new BasicNameValuePair("email",settings.getString(ACCOUNT_NAME, null)));
+//				postBody.add(new BasicNameValuePair("api_key", Setup.API_KEY));
+//				httppost.setEntity(new UrlEncodedFormEntity(postBody, HTTP.UTF_8));
+//				httppost.setHeader("Accept", "application/json");
+////            	httppost.setHeader("Content-type", "application/json");
+//            	HttpResponse response = httpclient.execute(httppost);
+//            	
+//
+//				
+//				StatusLine statusLine = response.getStatusLine();
+//				Log.i(TAG, "request status: " + statusLine.getStatusCode());
+//				
+//				if (statusLine.getStatusCode() == HttpStatus.SC_CREATED || statusLine.getStatusCode() == HttpStatus.SC_OK) {
+//					ByteArrayOutputStream out = new ByteArrayOutputStream();
+//					response.getEntity().writeTo(out);
+//					out.close();
+//					String responseString = out.toString();
+//					
+//					
+//					Log.i(TAG, "got auth response from server:" + responseString);
+//					boolean success = true;
+//					if (success) {
+//						
+//						jObject = new JSONObject(responseString);
+//						SharedPreferences.Editor editor = settings.edit();
+//						Log.i(TAG, "response : " + jObject);
+//						JSONObject user = jObject.getJSONObject("user");
+//						token = user.getString(Util.AUTH_TOKEN);
+//						Log.i(TAG, "token : " + token);
+//						Log.i(TAG,"got token"+token);
+//						editor.putString(Util.AUTH_TOKEN, token);
+//						return token;
+//						
+//					} 
+//
+//				} else {
+//					// Closes the connection.
+//					response.getEntity().getContent().close();
+//					throw new IOException(statusLine.getReasonPhrase());
+//				}
+//			} catch (Exception e) {
+//				Log.w(TAG, "Could not authenticate user.", e);
+//			}
+//		}
+//		return token;
+//    }
 
-				
-				StatusLine statusLine = response.getStatusLine();
-				Log.i(TAG, "request status: " + statusLine.getStatusCode());
-				
-				if (statusLine.getStatusCode() == 201 || statusLine.getStatusCode() == 200) {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					response.getEntity().writeTo(out);
-					out.close();
-					String responseString = out.toString();
-					
-					
-					Log.i(TAG, "got auth response from server:" + responseString);
-					boolean success = true;
-					if (success) {
-						
-						jObject = new JSONObject(responseString);
-						SharedPreferences.Editor editor = settings.edit();
-						Log.i(TAG, "response : " + jObject);
-						JSONObject user = jObject.getJSONObject("user");
-						token = user.getString(Util.AUTH_TOKEN);
-						Log.i(TAG, "token : " + token);
-						Log.i(TAG,"got token"+token);
-						editor.putString(Util.AUTH_TOKEN, token);
-						return token;
-						
-					} 
-
-				} else {
-					// Closes the connection.
-					response.getEntity().getContent().close();
-					throw new IOException(statusLine.getReasonPhrase());
-				}
-			} catch (Exception e) {
-				Log.w(TAG, "Could not authenticate user.", e);
-			}
-		}
-		return token;
-    }
-
-	private static Object JSONObject(String responseString) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

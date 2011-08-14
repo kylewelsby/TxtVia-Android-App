@@ -3,10 +3,12 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
+    android:background="@drawable/background">
+    <ImageView android:src="@drawable/txtvia" android:layout_height="wrap_content" android:id="@+id/imageView1" android:layout_width="wrap_content" android:layout_gravity="center_vertical|center_horizontal" android:layout_marginTop="200dp"></ImageView>
+    <ImageView android:src="@drawable/hr" android:layout_height="wrap_content" android:id="@+id/imageView2" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="12dp"></ImageView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="match_parent" android:text="Your device is now ready to use with TxtVia, you can now exit this application." android:padding="25dip" android:layout_marginTop="-100dip" android:id="@+id/textInfo" android:visibility="invisible"></TextView>
+    <FrameLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/state">
+        <Button android:text="Connect Device" android:id="@+id/connect_device" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:visibility="visible" android:minWidth="250px"></Button>
+        <ProgressBar android:layout_height="wrap_content" android:id="@+id/progressBar1" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:visibility="invisible" android:soundEffectsEnabled="true"></ProgressBar>
+    </FrameLayout>
 </LinearLayout>

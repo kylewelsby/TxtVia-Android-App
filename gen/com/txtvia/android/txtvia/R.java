@@ -11,22 +11,29 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int gradient=0x7f020000;
-        public static final int ic_mailboxes_accounts=0x7f020001;
-        public static final int icon=0x7f020002;
-        public static final int status_icon=0x7f020003;
+        public static final int background=0x7f020000;
+        public static final int gradient=0x7f020001;
+        public static final int hr=0x7f020002;
+        public static final int ic_mailboxes_accounts=0x7f020003;
+        public static final int icon=0x7f020004;
+        public static final int status_icon=0x7f020005;
+        public static final int txtvia=0x7f020006;
     }
     public static final class id {
+        public static final int buttons=0x7f060005;
         public static final int connect=0x7f060006;
-        public static final int connect_text=0x7f060001;
+        public static final int connect_device=0x7f06000c;
         public static final int disconnect=0x7f060009;
         public static final int disconnect_text=0x7f060008;
-        public static final int divider=0x7f060003;
         public static final int exit=0x7f060007;
-        public static final int footer=0x7f060005;
+        public static final int footer=0x7f060003;
         public static final int header=0x7f060000;
+        public static final int imageView1=0x7f060001;
+        public static final int imageView2=0x7f060002;
+        public static final int progressBar1=0x7f06000d;
         public static final int select_account=0x7f060004;
-        public static final int select_text=0x7f060002;
+        public static final int state=0x7f06000b;
+        public static final int textInfo=0x7f06000a;
     }
     public static final class layout {
         public static final int account=0x7f030000;
@@ -94,14 +101,13 @@ public final class R {
         /**  Button text [CHAR LIMIT=NONE] 
          */
         public static final int say_hello=0x7f040013;
+        public static final int select_account=0x7f040016;
         /**  List view header text [CHAR LIMIT=NONE] 
+ Dialog button text [CHAR LIMIT=NONE] 
          */
-        public static final int select_account=0x7f040014;
-        /**  Dialog button text [CHAR LIMIT=NONE] 
-         */
-        public static final int skip=0x7f040015;
+        public static final int skip=0x7f040014;
         /**  Notification message [CHAR LIMIT=NONE] 
          */
-        public static final int unregistration_succeeded=0x7f040016;
+        public static final int unregistration_succeeded=0x7f040015;
     }
 }

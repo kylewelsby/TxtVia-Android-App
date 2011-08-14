@@ -13,7 +13,7 @@
     <string name="attention">Attention</string>
 
     <!-- Button text [CHAR LIMIT=NONE] -->
-    <string name="connect">Connect</string>
+    <string name="connect">Connect Device</string>
 
     <!-- Message text for "Connect" screen [CHAR LIMIT=NONE] -->
     <string name="connect_text">This application requests permission to connect your mobile device to the TxtVia server.</string>
@@ -28,7 +28,7 @@
     <string name="contacting_server">Contacting server...</string>
 
     <!-- Button text [CHAR LIMIT=NONE] -->
-    <string name="disconnect">Disconnect</string>
+    <string name="disconnect">Disconnect Device</string>
 
     <!-- Informational text for "Connected" screen with placeholder for account name [CHAR LIMIT=NONE] -->
     <string name="disconnect_text">This device is currently connected to the TxtVia server as %1$s.  To disconnect, press the button below.</string>
@@ -49,20 +49,20 @@
     <string name="needs_account">To receive notifications from this app, you must first create an account.</string>
 
     <!-- Notification message [CHAR LIMIT=NONE] -->
-    <string name="registration_error">Failed to register/unregister %1$s.</string>
+    <string name="registration_error">Failed to unregister %1$s.</string>
 
     <!-- Notification message [CHAR LIMIT=NONE] -->
-    <string name="registration_succeeded">Registered %1$s for TxtVia server.</string>
+    <string name="registration_succeeded">This device is now ready to use with TxtVia</string>
 
     <!-- Button text [CHAR LIMIT=NONE] -->
     <string name="say_hello">Say Hello</string>
 
     <!-- List view header text [CHAR LIMIT=NONE] -->
-    <string name="select_account">Select the account you wish to authorize:</string>
 
     <!-- Dialog button text [CHAR LIMIT=NONE] -->
     <string name="skip">Skip</string>
 
     <!-- Notification message [CHAR LIMIT=NONE] -->
-    <string name="unregistration_succeeded">Unegistered %1$s for TxtVia server.</string>
+    <string name="unregistration_succeeded">This device has been unregisted from TxtVia</string>
+    <string name="select_account">Select Account</string>
 </resources>
